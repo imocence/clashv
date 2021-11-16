@@ -1,0 +1,64 @@
+# port of HTTP
+port: 7890
+
+# port of SOCKS5
+socks-port: 7891
+
+# (HTTP and SOCKS5 in one port)
+# mixed-port: 7890
+
+# redir port for Linux and macOS
+# redir-port: 7892
+
+# 允许局域网的连接（可用来共享代理）
+allow-lan: true
+bind-address: "*"
+# 此功能仅在 allow-lan 设置为 true 时生效，支持三种参数：
+# "*"                           绑定所有的 IP 地址
+# 192.168.122.11                绑定一个的 IPv4 地址
+# Clash 路由工作模式
+
+# 规则模式：rule（规则） / global（全局代理）/ direct（全局直连）
+mode: Rule
+
+# Clash 默认将日志输出
+log-level: info
+
+# clash 的 Restful API 监听地址
+external-controller: '0.0.0.0:9090'
+
+# DNS 服务器配置(可选；若不配置，程序内置的 DNS 服务会被关闭)
+dns:
+  enable: true
+  nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+    - 114.114.114.114
+  fallback:
+    - 223.5.5.5
+
+cfw-bypass:
+  - qq.com
+  - taobao.com
+  - localhost
+  - 127.*
+  - 10.*
+  - 172.16.*
+  - 172.17.*
+  - 172.18.*
+  - 172.19.*
+  - 172.20.*
+  - 172.21.*
+  - 172.22.*
+  - 172.23.*
+  - 172.24.*
+  - 172.25.*
+  - 172.26.*
+  - 172.27.*
+  - 172.28.*
+  - 172.29.*
+  - 172.30.*
+  - 172.31.*
+  - 192.168.*
+  - <local>
+cfw-latency-timeout: 5000

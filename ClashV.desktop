@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ClashV
+Exec=python /opt/ClashV/zenipy/main.pyc -d ~/.config/clash/
+Icon=/opt/ClashV/logo.png
+Terminal=false
+StartupNotify=false
+Categories=Network;GTK;
