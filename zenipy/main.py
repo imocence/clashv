@@ -1,18 +1,19 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import signal
 import os
-import config
-import webbrowser
+import signal
 import atexit
-import LogUtil
+import config
+import logback
+import ssr2clash
+import webbrowser
 
-from gi.repository import Gtk as gtk
+from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
 from subprocess import Popen
 
-logger = LogUtil.Logger()
+logger = logback.Logger()
 HOME = os.getenv("HOME")
 APPINDICATOR_ID = 'ClashV'
 LOGO_W = '/opt/ClashV/logo-w.svg'
@@ -26,7 +27,7 @@ def main():
     logger.info('Create a tray menu')
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     indicator.set_menu(build_menu())
-    gtk.main()
+    Gtk.main()
 
 
 # This class reference to https://github.com/Baloneo/ssr-gtk
@@ -77,32 +78,31 @@ class SettingWindow(Gtk.Window):
     def on_ssr_btn_clicked(self, widget):
         logger.info('Ssr button was clicked')
         url = self.entry.get_text()
-        ok = config.download_yaml(url)
-        if not ok:
+        if ssr2clash.ssr_to_clash(url):
             self.label_msg.set_text("转换失败")
         else:
-            self.label_msg.set_text("clashv订阅文件已保存到home目录")
+            self.label_msg.set_text("配置文件已更新")
 
 
 # 系统托盘
 def build_menu():
-    menu = gtk.Menu()
+    menu = Gtk.Menu()
     if switch == 0:
-        item_agent_stop = gtk.MenuItem('暂停代理')
+        item_agent_stop = Gtk.MenuItem('暂停代理')
         item_agent_stop.connect('activate', stop_agent)
         menu.append(item_agent_stop)
     else:
-        item_agent_start = gtk.MenuItem('继续代理')
+        item_agent_start = Gtk.MenuItem('继续代理')
         item_agent_start.connect('activate', start_agent)
         menu.append(item_agent_start)
     # 
-    item_conf = gtk.MenuItem('配置')
+    item_conf = Gtk.MenuItem('配置')
     item_conf.connect('activate', clash_conf)
     menu.append(item_conf)
-    item_console = gtk.MenuItem('控制台')
+    item_console = Gtk.MenuItem('控制台')
     item_console.connect('activate', console)
     menu.append(item_console)
-    item_quit = gtk.MenuItem('退出')
+    item_quit = Gtk.MenuItem('退出')
     item_quit.connect('activate', clash_quit)
     menu.append(item_quit)
     menu.show_all()
@@ -136,7 +136,7 @@ def clash_conf(source):
 def clash_quit(source):
     logger.info('Exit button was clicked')
     clashV.kill()
-    gtk.main_quit()
+    Gtk.main_quit()
 
 
 @atexit.register

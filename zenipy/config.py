@@ -4,11 +4,12 @@
 import os
 import io
 import yaml
-import LogUtil
+import logback
 
 HOME = os.getenv("HOME")
 YAML_PATH = os.path.join(HOME, ".config/clash/config.yaml")
-logger = LogUtil.Logger()
+CONF_PATH = os.path.join(HOME, ".config/clash/config_url")
+logger = logback.Logger()
 
 
 # 读取yaml文件
@@ -33,10 +34,10 @@ def download_yaml(url):
     logger.info('Download config url: {}'.format(url))
     url_file = os.popen('curl {}'.format(url)).read()
     if 'mode:' in url_file:
-        with open(os.path.join(HOME, ".config/clash/config.yaml"), "wb") as f:
+        with open(YAML_PATH, "wb") as f:
             f.write(url_file)
-        get_yaml_data(YAML_PATH)
         write_url(url)
+        url_file.close()
         return None
     else:
         return 1
@@ -44,7 +45,7 @@ def download_yaml(url):
 
 # 将url写入文件
 def write_url(url):
-    with open(os.path.join(HOME, ".config/clash/config_url"), "w") as f:
+    with open(CONF_PATH, "w") as f:
         f.write(url)
     logger.info('Write url to a file: {}'.format(url))
     return None
@@ -52,7 +53,7 @@ def write_url(url):
 
 # 从文件中读出url
 def read_url():
-    with open(os.path.join(HOME, ".config/clash/config_url"), "a+") as f:
+    with open(CONF_PATH, "a+") as f:
         f.seek(0)
         url = f.readline()
     logger.info('Read the url from a file: {}'.format(url))

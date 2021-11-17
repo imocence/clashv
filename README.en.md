@@ -13,9 +13,9 @@ Software architecture description
 
 #### Instructions
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1. You can update the configuration information through the subscription link
+2. If the network is unavailable, the subscription information will fail to load. After loading successfully, you can close the window
+3. You can enter the link format of SSR and convert it into configurable
 
 #### Contribution
 
