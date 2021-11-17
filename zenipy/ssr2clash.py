@@ -3,29 +3,10 @@
 #############################################
 #  将SSR订阅转为ClashR
 #############################################
-import os
 import re
 import base64
 import codecs
-import logback
-import requests
-
-logger = logback.Logger()
-HOME = os.getenv("HOME")
-YAML_PATH = os.path.join(HOME, ".config/clash/config.yaml")
-
-
-# 获取链接文本
-def get_base_file(url):
-    try:
-        html = requests.get(url)
-        html.raise_for_status
-        html.encoding = html.apparent_encoding
-    except IOError as ioe:
-        logger.info('getBasefile Error:', ioe)
-    else:
-        logger.info('From ' + url + ' get the text success...')
-        return str(html.text)
+import config
 
 
 # base64解码
@@ -45,15 +26,15 @@ def get_all_links(url):
         return url
     else:
         try:
-            links = get_base_file(url)
+            links = config.get_base_file(url)
             if re.match('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$', links):
                 all_links = base64_decode(links)
-                logger.info('From the encoded text decoding success...')
+                config.logger.info('From the encoded text decoding success...')
                 return all_links
             else:
                 return links
         except Exception as ex:
-            logger.info('getAllLinks Error:' + ex)
+            config.logger.info('getAllLinks Error:' + ex)
 
 
 # 从ssr链接中得到节点信息 如参数不对应在此调整
@@ -79,7 +60,7 @@ def get_node_ssr(node):
         return node_info
 
     except Exception as ex:
-        logger.info('getNodeR Error:', ex)
+        config.logger.info('getNodeR Error:', ex)
 
 
 # 设置SSR节点
@@ -160,32 +141,32 @@ def get_all_nodes(url):
         else:
             return all_links
     except Exception as ex:
-        logger.info('getAllNodes Error: {}'.format(ex))
+        config.logger.info('getAllNodes Error: {}'.format(ex))
     else:
-        logger.info('For all the nodes information successfully...')
+        config.logger.info('For all the nodes information successfully...')
         return all_nodes
 
 
 # 写文件
 def write_clash_file(nodes):
     try:
-        logger.info(nodes)
+        config.logger.info(nodes)
         if '- {"' in nodes:
             info = nodes
         else:
             info = set_nodes(nodes) + set_proxy_group(nodes)
 
-        with codecs.open(YAML_PATH, "a", encoding='utf-8') as f:
+        with codecs.open(config.YAML_PATH, "a", encoding='utf-8') as f:
             f.write(' \n\n')
             if 'proxies' not in info:
                 f.write('proxies:\n')
             f.writelines(info)
             f.closed
     except Exception as ex:
-        logger.info('Write to file failed, the reason:{}'.format(ex))
+        config.logger.info('Write to file failed, the reason:{}'.format(ex))
         return 1
     else:
-        logger.info('Written to the file to complete.')
+        config.logger.info('Written to the file to complete.')
         return None
 
 

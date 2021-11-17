@@ -5853,11 +5853,7 @@ Rule:
   # GeoIP China
   - GEOIP,CN,DIRECT
 
-
-
-
   # 自用
   - DOMAIN-KEYWORD,algolia,总模式
-
 
   - MATCH,总模式

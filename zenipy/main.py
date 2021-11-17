@@ -1,11 +1,9 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import os
 import signal
 import atexit
 import config
-import logback
 import ssr2clash
 import webbrowser
 
@@ -13,8 +11,6 @@ from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
 from subprocess import Popen
 
-logger = logback.Logger()
-HOME = os.getenv("HOME")
 APPINDICATOR_ID = 'ClashV'
 LOGO_W = '/opt/ClashV/logo-w.svg'
 LOGO_B = '/opt/ClashV/logo-b.svg'
@@ -24,7 +20,7 @@ clashV = Popen(args='/opt/ClashV/clash', shell=True)
 
 
 def main():
-    logger.info('Create a tray menu')
+    config.logger.info('Create a tray menu')
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     indicator.set_menu(build_menu())
     Gtk.main()
@@ -65,18 +61,21 @@ class SettingWindow(Gtk.Window):
         self.add(self.vbox)
         self.present()
         self.show_all()
-        logger.info('Initialize the configuration window')
+        config.logger.info('Initialize the configuration window')
 
     def on_ok_btn_clicked(self, widget):
+        global clashV
         url = self.entry.get_text()
-        logger.info('Ok button was clicked')
+        config.logger.info('Ok button was clicked')
         if config.download_yaml(url):
             self.label_msg.set_text("加载失败")
         else:
             self.label_msg.set_text("加载成功")
+        clashV.kill()
+        clashV = Popen(args='/opt/ClashV/clash', shell=True)
 
     def on_ssr_btn_clicked(self, widget):
-        logger.info('Ssr button was clicked')
+        config.logger.info('Ssr button was clicked')
         url = self.entry.get_text()
         if ssr2clash.ssr_to_clash(url):
             self.label_msg.set_text("转换失败")
@@ -128,13 +127,13 @@ def console(source):
 
 
 def clash_conf(source):
-    logger.info('Configure button was clicked')
+    config.logger.info('Configure button was clicked')
     stop_agent(source)
     SettingWindow()
 
 
 def clash_quit(source):
-    logger.info('Exit button was clicked')
+    config.logger.info('Exit button was clicked')
     clashV.kill()
     Gtk.main_quit()
 
@@ -143,11 +142,11 @@ def clash_quit(source):
 def _atexit():
     clashV.kill()
     config.set_none_proxy()
-    logger.info('Project exits')
+    config.logger.info('Project exits')
 
 
 if __name__ == "__main__":
-    logger.info('Project starting')
+    config.logger.info('Project starting')
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     config.set_proxy()
     main()
