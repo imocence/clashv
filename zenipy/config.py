@@ -55,7 +55,7 @@ def download_yaml(url):
     url_file = get_base_file(url)
     if 'mode:' in url_file:
         with open(YAML_PATH, "wb") as f:
-            f.write(url_file.replace('127.0.0.1:9090', '0.0.0.0:9090'))
+            f.write(url_file.replace('127.0.0.1:9090', '0.0.0.0:9090').replace('allow-lan: false', 'allow-lan: true'))
             f.close()
         write_url(url)
         return None

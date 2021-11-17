@@ -19,6 +19,19 @@ indicator = appindicator.Indicator.new(APPINDICATOR_ID, LOGO_W, appindicator.Ind
 clashV = Popen(args='/opt/ClashV/clash', shell=True)
 
 
+class Application(Gtk.Application):
+    def __init__(self, *args, **kwargs):
+        super(Application, self).__init__(application_id="com.aim.clashV")
+
+    def do_activate(self):
+        if not hasattr(self, "clashV"):
+            self.hold()
+            self.my_app_settings = "Primary application instance."
+            print(self.my_app_settings)
+        else:
+            print("Already running!")
+
+
 def main():
     config.logger.info('Create a tray menu')
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -135,18 +148,22 @@ def clash_conf(source):
 def clash_quit(source):
     config.logger.info('Exit button was clicked')
     clashV.kill()
+    config.set_none_proxy()
     Gtk.main_quit()
+    config.logger.info('Project exits')
 
 
 @atexit.register
 def _atexit():
     clashV.kill()
-    config.set_none_proxy()
-    config.logger.info('Project exits')
 
 
 if __name__ == "__main__":
-    config.logger.info('Project starting')
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    config.set_proxy()
-    main()
+    pid = config.os.popen("ps -ef | grep '/opt/ClashV/zenipy/main.pyc' |grep -v grep |wc -l").read()
+    if int(pid) == 1:
+        config.logger.info('Project starting')
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        config.set_proxy()
+        main()
+    else:
+        config.logger.info('In the operation of the project')
