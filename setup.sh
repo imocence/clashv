@@ -24,7 +24,6 @@ installFun(){
 	
 	cp ./clash /opt/ClashV
 	cp ./config.yaml ~/.config/clash
-	cp ./provider.yaml ~/.config/clash
 	cp ./Country.mmdb ~/.config/clash
 	python -m py_compile ./zenipy/*.py
 	mv ./zenipy/*.pyc /opt/ClashV/zenipy
