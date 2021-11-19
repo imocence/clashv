@@ -6,7 +6,6 @@ Linux桌面版的clash
 #### 软件架构
 软件架构说明
 
-
 #### 安装教程
 
 1.  上传到Linux系统中后，执行安装命令：./setup.sh ins
@@ -18,9 +17,16 @@ Linux桌面版的clash
 2.  如果网络不通的情况下订阅信息会加载失败，加载成功后就可以关闭窗口
 3.  可以输入ssr的链接格式转化成可以配置
 
+#### clash基本用法
+
+1.  启动命令：./clash -d ~/.config/clash/
+2.  停止命令：ps -ef |grep 'clash' |grep -v grep |awk '{print $2}' |xargs kill -9
+
+注：配置信息参考config.yaml文件
 #### 参与贡献
 
 1.  Fork 本仓库
 2.  新建 Feat_xxx 分支
 3.  提交代码
 4.  新建 Pull Request
+    https://etproxypool.ga/clash/config

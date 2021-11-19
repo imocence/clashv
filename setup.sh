@@ -9,17 +9,13 @@ installFun(){
 	if [ "$?" != "0" ]; then
 		python ./get-pip$PY_VERSION.py
 	fi
-	pip show pyyaml >/dev/null 2>&1 &
-	if [ "$?" != "0" ]; then
-		if (( $PY_VERSION == 3 )); then
-	    pip install pyyaml
-		elif (( $PY_VERSION == 2 )); then
-	  pip install PyYAML
-		fi
+	RUAMEL=`pip show ruamel.yaml 2>&1 |grep 'WARNING'|awk '{print $1}'`
+	if [ "$RUAMEL" == "WARNING:" ]; then
+		pip install ruamel.yaml
 	fi
 
-	pip show zenipy >/dev/null 2>&1 &
-	if [ "$?" != "0" ]; then
+	ZENIPY= `pip show zenipy 2>&1 |grep 'WARNING'|awk '{print $1}'`
+	if [ "$ZENIPY" == "WARNING:" ]; then
 	  pip install zenipy
 	fi
 
@@ -28,6 +24,7 @@ installFun(){
 	
 	cp ./clash /opt/ClashV
 	cp ./config.yaml ~/.config/clash
+	cp ./provider.yaml ~/.config/clash
 	cp ./Country.mmdb ~/.config/clash
 	python -m py_compile ./zenipy/*.py
 	mv ./zenipy/*.pyc /opt/ClashV/zenipy

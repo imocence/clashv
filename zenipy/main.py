@@ -41,6 +41,28 @@ def main():
 
 # This class reference to https://github.com/Baloneo/ssr-gtk
 class SettingWindow(Gtk.Window):
+    def on_ok_btn_clicked(self, widget):
+        global clashV
+        url = self.entry.get_text()
+        config.logger.info('Ok button was clicked')
+        self.label_msg.set_text("加载中...")
+        if config.download_yaml(url):
+            self.label_msg.set_text("加载失败")
+        else:
+            self.label_msg.set_text("加载成功")
+        clashV.kill()
+        clashV = Popen(args='/opt/ClashV/clash', shell=True)
+
+    def on_link_btn_clicked(self, widget):
+        global clashV
+        url = self.entry.get_text()
+        config.logger.info('Link button was clicked')
+        if ssr2clash.link_to_clash(url):
+            self.label_msg.set_text("转换失败")
+        else:
+            self.label_msg.set_text("添加成功")
+        clashV.kill()
+        clashV = Popen(args='/opt/ClashV/clash', shell=True)
 
     def __init__(self, *args, **kwargs):
         super(SettingWindow, self).__init__(*args, **kwargs)
@@ -61,8 +83,8 @@ class SettingWindow(Gtk.Window):
         self.label_msg.set_selectable(True)
         hbox.pack_start(self.label_msg, True, True, 0)
         # 转链按钮
-        self.button_ssr = Gtk.Button("ssr转clashv")
-        self.button_ssr.connect("clicked", self.on_ssr_btn_clicked)
+        self.button_ssr = Gtk.Button("链接转clash")
+        self.button_ssr.connect("clicked", self.on_link_btn_clicked)
         hbox.pack_start(self.button_ssr, False, False, 0)
         # 下载按钮
         self.button_ok = Gtk.Button("确认")
@@ -75,25 +97,6 @@ class SettingWindow(Gtk.Window):
         self.present()
         self.show_all()
         config.logger.info('Initialize the configuration window')
-
-    def on_ok_btn_clicked(self, widget):
-        global clashV
-        url = self.entry.get_text()
-        config.logger.info('Ok button was clicked')
-        if config.download_yaml(url):
-            self.label_msg.set_text("加载失败")
-        else:
-            self.label_msg.set_text("加载成功")
-        clashV.kill()
-        clashV = Popen(args='/opt/ClashV/clash', shell=True)
-
-    def on_ssr_btn_clicked(self, widget):
-        config.logger.info('Ssr button was clicked')
-        url = self.entry.get_text()
-        if ssr2clash.ssr_to_clash(url):
-            self.label_msg.set_text("转换失败")
-        else:
-            self.label_msg.set_text("配置文件已更新")
 
 
 # 系统托盘
@@ -160,7 +163,7 @@ def _atexit():
 
 if __name__ == "__main__":
     pid = config.os.popen("ps -ef | grep '/opt/ClashV/zenipy/main.pyc' |grep -v grep |wc -l").read()
-    if int(pid) == 1:
+    if int(pid) <= 1:
         config.logger.info('Project starting')
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         config.set_proxy()

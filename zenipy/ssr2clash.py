@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 #############################################
-#  将SSR订阅转为ClashR
+#  将订阅转为Clash
 #############################################
 import re
+import json
 import base64
-import codecs
 import config
 
 
@@ -32,7 +32,11 @@ def get_all_links(url):
                 config.logger.info('From the encoded text decoding success...')
                 return all_links
             else:
-                return links
+                yaml_data = config.yaml.load(links, Loader=config.yaml.RoundTripLoader)
+                nodes = []
+                for i, value in enumerate(yaml_data['proxies']):
+                    nodes.append(yaml_data['proxies'][i])
+                return nodes
         except Exception as ex:
             config.logger.info('getAllLinks Error:' + ex)
 
@@ -40,94 +44,47 @@ def get_all_links(url):
 # 从ssr链接中得到节点信息 如参数不对应在此调整
 def get_node_ssr(node):
     try:
-        node_info = {}
         info = base64_decode(node)
-        front_val = info.split('/?')[0]
-        node_info['server'] = front_val.split(':')[0]
-        node_info['port'] = front_val.split(':')[1]
-        node_info['protocol'] = front_val.split(':')[2]
-        node_info['method'] = front_val.split(':')[3]
-        node_info['obfs'] = front_val.split(':')[4]
-        node_info['pwd'] = base64_decode(front_val.split(':')[5])
+        ssr_dict = json.loads(info)
+        node_info = {
+            'name': str(ssr_dict['remarks'] or ssr_dict['name']),
+            'server': str(ssr_dict['server']),
+            'port': int(ssr_dict['port'] or ssr_dict['server_port']),
+            'type': 'ssr',
+            'password': str(ssr_dict['password'] or ssr_dict['pwd']),
+            'cipher': str(ssr_dict['method']),
+            'protocol': str(ssr_dict['protocol']),
+            'obfs': str(ssr_dict['obfs'])
 
-        rear_val = info.split('/?')[1]
-        for a in rear_val.split('&'):
-            b = a.split('=')[0]
-            c = base64_decode(a.split('=')[1])
-            node_info[b] = c
-
-        # print(node_info)
+        }
         return node_info
-
     except Exception as ex:
-        config.logger.info('getNodeR Error:', ex)
+        config.logger.info('getNodeSsr Error:', ex)
 
 
-# 设置SSR节点
-def set_nodes(nodes):
-    proxies = []
-    for node in nodes:
-        name = node['remarks'] or node['name']
-        server = node['server']
-        port = node['port']
-        cipher = node['method'] or node['cipher']
-        pwd = node['pwd'] or node['password']
-        protocol = node['protocol']
-        obfs = node['obfs']
-
-        if 'group' in node:
-            group = node['group']
-        else:
-            group = ''
-
-        if 'protoparam' in node:
-            proparam = node['protoparam']
-        else:
-            proparam = ''
-
-        if 'obfsparam' in node:
-            obparam = node['obfsparam']
-        else:
-            obparam = ''
-
-        proxy = '- { name: ' + '\"' + str(name).strip() + '\"' + ', type: ssr, server: ' + '\"' + str(
-            server) + '\"' + ', port: ' + str(
-            port) + ', password: ' + '\"' + str(pwd) + '\"' + ', cipher: ' + '\"' + str(
-            cipher) + '\"' + ', protocol: ' + '\"' + str(
-            protocol) + '\"' + ', protocolparam: ' + '\"' + str(proparam) + '\"' + ', obfs: ' + '\"' + str(
-            obfs) + '\"' + ', obfsparam: ' + '\"' + str(obparam) + '\"' + ' }\n'
-        proxies.append(proxy)
-    proxies.insert(0, '\nProxy:\n\n')
-    return proxies
+def get_node_vmess(node):
+    try:
+        info = base64_decode(node)
+        vmess_dict = json.loads(info)
+        node_info = {
+            'name': str(vmess_dict['ps']),
+            'server': str(vmess_dict['add']),
+            'port': int(vmess_dict['port']),
+            'type': 'vmess',
+            'uuid': str(vmess_dict['id']),
+            'alterId': str(vmess_dict['aid']),
+            'cipher': 'auto',
+            'network': str(vmess_dict['net']),
+            'ws-path': str(vmess_dict['path']),
+            'skip-cert-verify': True,
+            'tls': True
+        }
+        return node_info
+    except Exception as ex:
+        config.logger.info('getNodeVmess Error:', ex)
 
 
-# 设置策略组
-def set_proxy_group(nodes):
-    proxy_names = ''
-    for node in nodes:
-        proxy_names = proxy_names + '\"' + (node['remarks'] or node['name']) + '\",'
-
-    proxy_names = str(proxy_names[:-1])
-    g_url = 'http://www.gstatic.com/generate_204'
-    proxy_0 = '- { name: "总模式", type: select, proxies: ' + ' [\"手动切换\",\"延迟最低\",\"负载均衡\",\"故障切换\",\"DIRECT\"] }\n'
-    proxy_1 = '- { name: "手动切换", type: select, proxies: [' + proxy_names + '] }\n'
-    proxy_2 = '- { name: "延迟最低", type: url-test, proxies: [' + proxy_names + '], url: "' + g_url + '", interval: 300 }\n'
-    proxy_3 = '- { name: "故障切换", type: fallback, proxies: [' + proxy_names + '], url: "' + g_url + '", interval: 300 }\n'
-    proxy_4 = '- { name: "负载均衡", type: load-balance, proxies: [' + proxy_names + '], url: "' + g_url + '", interval: 300 }\n'
-
-    apple = '- { name: "Apple服务", type: select, proxies: ' + ' [\"DIRECT\",\"手动切换\",' + proxy_names + '] }\n'
-    global_media = '- { name: "国际媒体", type: select, proxies: ' + ' [\"手动切换\",' + proxy_names + '] }\n'
-    china_media = '- { name: "中国媒体", type: select, proxies: ' + ' [\"DIRECT\"] }\n'
-    reject_web = '- { name: "屏蔽网站", type: select, proxies: ' + ' [\"REJECT\",\"DIRECT\"] }' + '\n\n\n\n\n\n'
-
-    rule = "# 规则\n"
-
-    proxy_group = ['\nProxy Group:\n\n', proxy_0, proxy_1, proxy_2, proxy_3, proxy_4, apple, global_media, china_media,
-                   reject_web, rule]
-    return proxy_group
-
-
-# 从ssr链接汇总得到所有节点信息
+# 从订阅链接得到所有节点信息
 def get_all_nodes(url):
     try:
         all_nodes = []
@@ -138,8 +95,14 @@ def get_all_nodes(url):
                 if ssr:
                     node = get_node_ssr(ssr.replace('\n', ''))
                     all_nodes.append(node)
+        elif 'vmess://' in all_links:
+            links = all_links.split('vmess://')
+            for vmess in links:
+                if vmess:
+                    node = get_node_vmess(vmess)
+                    all_nodes.append(node)
         else:
-            return all_links
+            all_nodes = all_links
     except Exception as ex:
         config.logger.info('getAllNodes Error: {}'.format(ex))
     else:
@@ -151,29 +114,41 @@ def get_all_nodes(url):
 def write_clash_file(nodes):
     try:
         config.logger.info(nodes)
-        if '- {"' in nodes:
-            info = nodes
-        else:
-            info = set_nodes(nodes) + set_proxy_group(nodes)
-
-        with codecs.open(config.YAML_PATH, "a", encoding='utf-8') as f:
-            f.write(' \n\n')
-            if 'proxies' not in info:
-                f.write('proxies:\n')
-            f.writelines(info)
-            f.closed
+        with open(config.YAML_PATH, 'r+') as f:
+            yaml_data = config.yaml.load(f, Loader=config.yaml.RoundTripLoader)
+            proxies_info = yaml_data['proxies']
+            if proxies_info is None:
+                proxies_info = []
+            pg_data = yaml_data['proxy-groups']
+            for dict_info in nodes:
+                proxies_info.append(dict_info)
+                for pg in pg_data:
+                    if pg['name'] == '全局选择':
+                        continue
+                    pg_proxies = pg['proxies']
+                    if pg_proxies is None:
+                        pg_proxies = []
+                    #
+                    pg_proxies.append(str(dict_info['name']))
+                    #
+                    pg['proxies'] = pg_proxies
+            #
+            yaml_data['proxies'] = proxies_info
+            f.seek(0)
+            f.truncate()
+            config.yaml.dump(data=yaml_data, stream=f, Dumper=config.yaml.RoundTripDumper, allow_unicode=True,
+                             default_flow_style=False)
     except Exception as ex:
-        config.logger.info('Write to file failed, the reason:{}'.format(ex))
+        config.logger.info('Write to file failed, Exception:{}'.format(ex))
         return 1
     else:
         config.logger.info('Written to the file to complete.')
         return None
 
 
-# 通过网络链接将ssr转成clash
-def ssr_to_clash(url):
-    if 'http' not in url:
+# 通过网络链接/ssr/vmess将转成clash
+def link_to_clash(url):
+    if '://' not in url:
         url = 'https://free886.herokuapp.com/clash/proxies?type=ssr'
     nodes = get_all_nodes(url)
-
     return write_clash_file(nodes)

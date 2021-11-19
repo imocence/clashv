@@ -1,10 +1,9 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
-
 import os
 import io
 import sys
-import yaml
+from ruamel import yaml
 import logback
 import requests
 
@@ -41,7 +40,7 @@ def get_yaml_data(yaml_file):
     logger.info("Yaml file of type: {}".format(type(file_data)))
     # 将字符串转化为字典或列表
     print("***转化yaml数据为字典或列表***")
-    data = yaml.load(file_data, Loader=yaml.FullLoader)
+    data = yaml.load(file_data, Loader=yaml.RoundTripLoader)
     logger.info("Returns the data type: {}".format(type(data)))
     return data
 

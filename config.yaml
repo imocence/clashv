@@ -66,6 +66,25 @@ cfw-bypass:
   - <local>
 cfw-latency-timeout: 5000
 
+proxies:
+
+
+proxy-groups:
+  - name: 全局选择
+    type: select
+    proxies:
+      - 手动选择
+      - 负载均衡
+  - name: 手动选择
+    type: select
+    proxies:
+  - name: 负载均衡
+    type: load-balance
+    interval: 300
+    url: 'http://www.gstatic.com/generate_204'
+    proxies:
+
+
 # 规则
 Rule:
   # Feeb

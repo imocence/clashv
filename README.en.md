@@ -17,6 +17,13 @@ Software architecture description
 2. If the network is unavailable, the subscription information will fail to load. After loading successfully, you can close the window
 3. You can enter the link format of SSR and convert it into configurable
 
+#### Tutorial
+
+1.  Start command: ./clash -d ~/.config/clash/
+2.  Close command: ps -ef |grep 'clash' |grep -v grep |awk '{print $2}' |xargs kill -9
+
+notice：Configuration information for reference config.yaml
+
 #### Contribution
 
 1.  Fork the repository
