@@ -119,20 +119,21 @@ def write_clash_file(nodes):
             proxies_info = yaml_data['proxies']
             if proxies_info is None:
                 proxies_info = []
-            pg_data = yaml_data['proxy-groups']
+            # 开始遍历链接
             for dict_info in nodes:
                 proxies_info.append(dict_info)
-                for pg in pg_data:
-                    if pg['name'] == '全局选择':
-                        continue
-                    pg_proxies = pg['proxies']
-                    if pg_proxies is None:
-                        pg_proxies = []
-                    #
-                    pg_proxies.append(str(dict_info['name']))
-                    #
-                    pg['proxies'] = pg_proxies
-            #
+                if yaml_data.has_key('proxy-groups'):
+                    for pg in yaml_data['proxy-groups']:
+                        if pg['name'] == '全局代理':
+                            continue
+                        pg_proxies = pg['proxies']
+                        if pg_proxies is None:
+                            pg_proxies = []
+                        # 多个连接名称追加
+                        pg_proxies.append(str(dict_info['name']))
+                        # 设置选择名称
+                        pg['proxies'] = pg_proxies
+            # 设置新的链接
             yaml_data['proxies'] = proxies_info
             f.seek(0)
             f.truncate()

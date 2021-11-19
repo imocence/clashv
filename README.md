@@ -23,6 +23,19 @@ Linux桌面版的clash
 2.  停止命令：ps -ef |grep 'clash' |grep -v grep |awk '{print $2}' |xargs kill -9
 
 注：配置信息参考config.yaml文件
+    
+    规则解释
+
+    DOMAIN-SUFFIX：域名后缀匹配
+    DOMAIN：域名匹配
+    DOMAIN-KEYWORD：域名关键字匹配
+    IP-CIDR：IP段匹配
+    SRC-IP-CIDR：源IP段匹配
+    GEOIP：GEOIP数据库（国家代码）匹配
+    DST-PORT：目标端口匹配
+    SRC-PORT：源端口匹配
+    MATCH：全匹配（一般放在最后）
+
 #### 参与贡献
 
 1.  Fork 本仓库

@@ -110,7 +110,7 @@ def build_menu():
         item_agent_start = Gtk.MenuItem('继续代理')
         item_agent_start.connect('activate', start_agent)
         menu.append(item_agent_start)
-    # 
+    #
     item_conf = Gtk.MenuItem('配置')
     item_conf.connect('activate', clash_conf)
     menu.append(item_conf)
@@ -144,7 +144,6 @@ def console(source):
 
 def clash_conf(source):
     config.logger.info('Configure button was clicked')
-    stop_agent(source)
     SettingWindow()
 
 
