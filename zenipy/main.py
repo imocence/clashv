@@ -149,14 +149,15 @@ def clash_conf(source):
 
 def clash_quit(source):
     config.logger.info('Exit button was clicked')
-    clashV.kill()
     config.set_none_proxy()
+    clashV.kill()
     Gtk.main_quit()
     config.logger.info('Project exits')
 
 
 @atexit.register
 def _atexit():
+    config.set_none_proxy()
     clashV.kill()
 
 

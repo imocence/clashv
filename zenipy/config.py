@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 import os
-import io
 import sys
 from ruamel import yaml
 import logback
@@ -32,17 +31,13 @@ def get_base_file(url):
 
 # 读取yaml文件
 def get_yaml_data(yaml_file):
-    # 打开yaml文件
-    print("***获取yaml文件数据***")
-    file_yaml = io.open(yaml_file, 'r', encoding="utf-8")
-    file_data = file_yaml.read()
-    file_yaml.close()
-    logger.info("Yaml file of type: {}".format(type(file_data)))
-    # 将字符串转化为字典或列表
-    print("***转化yaml数据为字典或列表***")
-    data = yaml.load(file_data, Loader=yaml.RoundTripLoader)
-    logger.info("Returns the data type: {}".format(type(data)))
-    return data
+    try:
+        with open(yaml_file, 'r') as file_yaml:
+            print("***转化yaml数据为字典或列表***")
+            data = yaml.load(file_yaml, Loader=yaml.RoundTripLoader)
+            return data
+    except Exception as ex:
+        logger.info('Read Yaml Error: {}'.format(ex))
 
 
 # 下载config
@@ -82,8 +77,8 @@ def read_url():
 # 设置代理参数
 def set_proxy():
     host = '127.0.0.1'
-    try:
-        data = get_yaml_data(YAML_PATH)
+    data = get_yaml_data(YAML_PATH)
+    if data:
         port = data['port'] if data.has_key('port') else 7890
         s_port = data["socks-port"] if data.has_key('socks-port') else 7891
         logger.info('agent_host: {},agent_port: {},agent_socks_port: {}'.format(host, port, s_port))
@@ -97,8 +92,8 @@ def set_proxy():
         os.system('gsettings set org.gnome.system.proxy.socks port {}'.format(s_port))
         os.system('gsettings set org.gnome.system.proxy mode  "manual"')
         logger.info('Agent started')
-    except Exception as ex:
-        logger.info('set_proxy Error:' + ex)
+    else:
+        logger.info('get param None,Agent not setting')
 
 
 # 取消代理参数

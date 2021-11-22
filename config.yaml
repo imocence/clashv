@@ -81,33 +81,33 @@ proxy-groups:
     proxies:
 
   - name: 延迟最低
-    type: url-test
+    type: "url-test"
     interval: 300
     url: 'http://www.gstatic.com/generate_204'
     proxies:
 
   - name: 负载均衡
-      type: load-balance
-      interval: 300
-      url: 'http://www.gstatic.com/generate_204'
-      proxies:
+    type: load-balance
+    interval: 300
+    url: 'http://www.gstatic.com/generate_204'
+    proxies:
 
 rules:
   # 抗 DNS 污染
-  - DOMAIN-KEYWORD,amazon,失败切换
-  - DOMAIN-KEYWORD,google,失败切换
-  - DOMAIN-KEYWORD,gmail,失败切换
-  - DOMAIN-KEYWORD,youtube,失败切换
-  - DOMAIN-KEYWORD,facebook,失败切换
-  - DOMAIN-KEYWORD,twitter,失败切换
-  - DOMAIN-KEYWORD,instagram,失败切换
-  - DOMAIN-KEYWORD,dropbox,失败切换
-  - DOMAIN-KEYWORD,blogspot,失败切换
-  - DOMAIN-KEYWORD,whatsapp,失败切换
-  - DOMAIN-SUFFIX,fb.me,失败切换
-  - DOMAIN-SUFFIX,fbcdn.net,失败切换
-  - DOMAIN-SUFFIX,twimg.com,失败切换
-  - DOMAIN-SUFFIX,youtu.be,失败切换
+  - DOMAIN-KEYWORD,amazon,全局代理
+  - DOMAIN-KEYWORD,google,全局代理
+  - DOMAIN-KEYWORD,gmail,全局代理
+  - DOMAIN-KEYWORD,youtube,全局代理
+  - DOMAIN-KEYWORD,facebook,全局代理
+  - DOMAIN-KEYWORD,twitter,全局代理
+  - DOMAIN-KEYWORD,instagram,全局代理
+  - DOMAIN-KEYWORD,dropbox,全局代理
+  - DOMAIN-KEYWORD,blogspot,全局代理
+  - DOMAIN-KEYWORD,whatsapp,全局代理
+  - DOMAIN-SUFFIX,fb.me,全局代理
+  - DOMAIN-SUFFIX,fbcdn.net,全局代理
+  - DOMAIN-SUFFIX,twimg.com,全局代理
+  - DOMAIN-SUFFIX,youtu.be,全局代理
 
   # 常见广告域名屏蔽
   - DOMAIN-KEYWORD,admarvel,REJECT
@@ -140,10 +140,9 @@ rules:
   - IP-CIDR,10.0.0.0/8,DIRECT
   - IP-CIDR,172.16.0.0/12,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
-  - IP-CIDR,10.0.0.0/8,DIRECT
   - IP-CIDR,17.0.0.0/8,DIRECT
   - IP-CIDR,100.64.0.0/10,DIRECT
 
   # 最终规则
   - GEOIP,CN,DIRECT
-  - MATCH,失败切换
+  - MATCH,全局代理
